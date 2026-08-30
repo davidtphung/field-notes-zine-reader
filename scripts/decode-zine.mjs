@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,9 +10,12 @@ mkdirSync(outDir, { recursive: true });
 
 for (let i = 1; i <= 9; i += 1) {
   const name = `page-0${i}.jpg`;
-  const b64 = readFileSync(join(partsDir, `${name}.b64`), "utf8").replace(
-    /\s+/g,
-    "",
-  );
+  const whole = join(partsDir, `${name}.b64`);
+  const partA = join(partsDir, `${name}.b64.a`);
+  const partB = join(partsDir, `${name}.b64.b`);
+  const raw = existsSync(whole)
+    ? readFileSync(whole, "utf8")
+    : `${readFileSync(partA, "utf8")}${readFileSync(partB, "utf8")}`;
+  const b64 = raw.replace(/\s+/g, "");
   writeFileSync(join(outDir, name), Buffer.from(b64, "base64"));
 }
